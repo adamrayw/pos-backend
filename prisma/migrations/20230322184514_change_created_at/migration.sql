@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Transaksi" ALTER COLUMN "createdAt" DROP NOT NULL,
+ALTER COLUMN "createdAt" DROP DEFAULT;
