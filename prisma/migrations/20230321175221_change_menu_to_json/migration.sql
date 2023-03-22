@@ -1,0 +1,9 @@
+/*
+  Warnings:
+
+  - The `menu` column on the `Transaksi` table would be dropped and recreated. This will lead to data loss if there is data in the column.
+
+*/
+-- AlterTable
+ALTER TABLE "Transaksi" DROP COLUMN "menu",
+ADD COLUMN     "menu" JSONB;

@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @unique @default(uuid())
+  email     String    @unique
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+}
+
+model Item {
+  id         String    @id @unique @default(uuid())
+  kategori   Kategori? @relation(fields: [kategoriId], references: [id])
+  kategoriId String?
+  image      String
+  name       String
+  price      Int
+  qty        Int       @default(1)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+}
+
+model Kategori {
+  id        String    @id @unique @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  items     Item[]
+}
+
+model Transaksi {
+  id           String    @id @unique @default(uuid())
+  transaksiId  String?
+  menu         Json?
+  total        Int
+  token        String?
+  redirect_url String?
+  isPaid       Boolean
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime?
+}
