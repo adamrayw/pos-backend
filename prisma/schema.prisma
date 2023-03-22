@@ -40,7 +40,7 @@ model Kategori {
 
 model Transaksi {
   id           String    @id @unique @default(uuid())
-  transaksiId  String?
+  transaksiId  String?   @unique
   menu         Json?
   total        Int
   token        String?

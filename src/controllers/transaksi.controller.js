@@ -2,6 +2,20 @@ const prisma = require('../services/prisma.service')
 const generateTransactionID = require('../utils/generateId.utils')
 const axios = require('axios');
 
+async function getTransaksi(req, res) {
+    try {
+        const response = await prisma.transaksi.findMany({
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+
+        res.json({ 'items': response })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function postTransaksi(req, res) {
     const dataTransaksi = req.body
 
@@ -34,7 +48,7 @@ async function postTransaksi(req, res) {
     try {
         const response = await prisma.transaksi.create({
             data: {
-                transaksiId: generateTransactionID(),
+                transaksiId: id,
                 menu: {
                     set: dataTransaksi.data.menu
                 },
@@ -57,6 +71,25 @@ async function postTransaksi(req, res) {
     }
 }
 
+async function handling(req, res) {
+    const responseFromMidtrans = req.body
+    try {
+        const updatePaymentStatus = await prisma.transaksi.update({
+            where: {
+                transaksiId: responseFromMidtrans.order_id
+            },
+            data: {
+                isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false)
+            }
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
-    postTransaksi
+    getTransaksi,
+    postTransaksi,
+    handling
 }
