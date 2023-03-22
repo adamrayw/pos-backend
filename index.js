@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express()
-const port = 8181
 const bodyParser = require('body-parser')
 const menuRouter = require('./src/routes/menu.route')
 const kategoriRouter = require('./src/routes/kategori.route')
@@ -41,6 +40,6 @@ app.use((err, req, res, next) => {
 });
 
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+app.listen(process.env.PORT || 3001, () => {
+    console.log(`Server running...`)
 })
