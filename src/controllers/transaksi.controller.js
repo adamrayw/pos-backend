@@ -1,6 +1,58 @@
 const prisma = require('../services/prisma.service')
 const generateTransactionID = require('../utils/generateId.utils')
 const axios = require('axios');
+const { getISO, getISONow } = require('../utils/getISO.utils');
+
+async function getTransaksiHariIni(req, res) {
+    try {
+        const response = await prisma.transaksi.findMany({
+            where: {
+                AND: [
+                    {
+                        createdAt: {
+                            gt: getISO()
+                        }
+                    }, {
+
+                        isPaid: true
+                    }
+                ]
+            }
+        })
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function getTransaksiBulanIni(req, res) {
+    const now = new Date();
+    /* It's getting the first day of the past month. */
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth()).toISOString();
+
+    try {
+        const response = await prisma.transaksi.findMany({
+            where: {
+                AND: [
+                    {
+                        createdAt: {
+                            /* It's getting the first day of the past month. */
+                            gte: startOfMonth,
+                            lte: getISONow(),
+                        },
+                    }, {
+
+                        isPaid: true
+                    }
+                ]
+            }
+        })
+
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function getTransaksi(req, res) {
     try {
@@ -10,7 +62,10 @@ async function getTransaksi(req, res) {
             }
         })
 
-        res.json({ 'items': response })
+        const trtoday = await getTransaksiHariIni()
+        const trmonth = await getTransaksiBulanIni()
+
+        res.json({ 'items': response, 'transaction_today': trtoday, 'transaction_month': trmonth })
     } catch (error) {
         console.log(error)
     }
@@ -55,7 +110,8 @@ async function postTransaksi(req, res) {
                 total: dataTransaksi.data.total,
                 token,
                 redirect_url,
-                isPaid: false
+                isPaid: false,
+                createdAt: getISONow()
 
             }
         })
@@ -91,5 +147,6 @@ async function handling(req, res) {
 module.exports = {
     getTransaksi,
     postTransaksi,
-    handling
+    handling,
+    getTransaksiHariIni
 }
