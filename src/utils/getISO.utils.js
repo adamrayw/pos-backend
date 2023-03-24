@@ -4,7 +4,7 @@ function getISO() {
     let localISOTime = (new Date(Date.now() - tzoffset))
 
     localISOTime.setUTCHours(0, 0, 0, 0)
-    localISOTime.setDate(localISOTime.getDate() + 1)
+    localISOTime.setDate(localISOTime.getDate())
 
     return localISOTime.toISOString()
 }
@@ -12,11 +12,9 @@ function getISO() {
 function getISONow() {
 
     let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-    let localISOTime = (new Date(Date.now() - tzoffset))
-    localISOTime.setMonth(localISOTime.getMonth() + 1)
-    localISOTime.setUTCHours(0, 0, 0, 0)
+    let localISOTime = (new Date(Date.now() - tzoffset)).toISOString()
 
-    return localISOTime.toISOString()
+    return localISOTime
 }
 
 module.exports = { getISO, getISONow }
