@@ -70,7 +70,7 @@ async function getTransaksiBulanKemarin(req, res) {
 }
 
 async function getTransaksiHariIni(req, res) {
-    console.log(getISO())
+    console.log("time " + getISO())
     try {
         const response = await prisma.transaksi.findMany({
             where: {
