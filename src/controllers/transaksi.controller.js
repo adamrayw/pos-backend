@@ -3,6 +3,72 @@ const generateTransactionID = require('../utils/generateId.utils')
 const axios = require('axios');
 const { getISO, getISONow } = require('../utils/getISO.utils');
 
+async function getTransaksiKemarin(req, res) {
+    let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    let now = (new Date(Date.now() - tzoffset))
+    /* It's getting the first day of the past month. */
+    const startOfDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    startOfDate.setUTCHours(0, 0, 0, 0)
+    const endOfDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    endOfDate.setUTCHours(23, 59, 59, 59)
+
+    try {
+        const response = await prisma.transaksi.findMany({
+            where: {
+                AND: [
+                    {
+                        createdAt: {
+                            gte: startOfDate,
+                            lte: endOfDate
+                        }
+                    },
+                    {
+                        isPaid: true
+                    }
+                ]
+            }
+        })
+
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function getTransaksiBulanKemarin(req, res) {
+    let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    let now = (new Date(Date.now() - tzoffset))
+    /* It's getting the first day of the past month. */
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth())
+    startOfMonth.setUTCHours(0, 0, 0, 0)
+    startOfMonth.setDate('1')
+
+    const nowMonth = new Date(now.getFullYear(), now.getMonth())
+    nowMonth.setUTCHours(23, 59, 59, 59)
+
+    try {
+        const response = await prisma.transaksi.findMany({
+            where: {
+                AND: [
+                    {
+                        createdAt: {
+                            gte: startOfMonth,
+                            lte: nowMonth
+                        }
+                    },
+                    {
+                        isPaid: true
+                    }
+                ]
+            }
+        })
+
+        return response
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function getTransaksiHariIni(req, res) {
     try {
         const response = await prisma.transaksi.findMany({
@@ -64,8 +130,18 @@ async function getTransaksi(req, res) {
 
         const trtoday = await getTransaksiHariIni()
         const trmonth = await getTransaksiBulanIni()
+        const tryesterday = await getTransaksiKemarin()
+        const tryesterdaymonth = await getTransaksiBulanKemarin()
 
-        res.json({ 'items': response, 'transaction_today': trtoday, 'transaction_month': trmonth })
+        res.json(
+            {
+                'items': response,
+                'transaction_today': trtoday,
+                'transaction_month': trmonth,
+                'transaction_yesterday': tryesterday,
+                'transaction_last_month': tryesterdaymonth
+            }
+        )
     } catch (error) {
         console.log(error)
     }
@@ -148,5 +224,7 @@ module.exports = {
     getTransaksi,
     postTransaksi,
     handling,
-    getTransaksiHariIni
+    getTransaksiHariIni,
+    getTransaksiKemarin,
+    getTransaksiBulanKemarin
 }
