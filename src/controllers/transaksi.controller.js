@@ -70,7 +70,6 @@ async function getTransaksiBulanKemarin(req, res) {
 }
 
 async function getTransaksiHariIni(req, res) {
-    console.log("time " + getISO())
     try {
         const response = await prisma.transaksi.findMany({
             where: {
@@ -122,6 +121,8 @@ async function getTransaksiBulanIni(req, res) {
 }
 
 async function getTransaksi(req, res) {
+    console.log("time " + getISO())
+
     try {
         const response = await prisma.transaksi.findMany({
             orderBy: {
@@ -136,11 +137,13 @@ async function getTransaksi(req, res) {
 
         res.json(
             {
+                'time': getISO(),
                 'items': response,
                 'transaction_today': trtoday,
                 'transaction_month': trmonth,
                 'transaction_yesterday': tryesterday,
                 'transaction_last_month': tryesterdaymonth
+
             }
         )
     } catch (error) {
