@@ -95,6 +95,7 @@ async function getTransaksiBulanIni(req, res) {
     const now = new Date();
     /* It's getting the first day of the past month. */
     const startOfMonth = new Date(now.getFullYear(), now.getMonth()).toISOString();
+    startOfMonth.setUTCHours(0, 0, 0, 0)
 
     try {
         const response = await prisma.transaksi.findMany({
