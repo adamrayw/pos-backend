@@ -4,7 +4,7 @@ function getISO() {
     let localISOTime = (new Date(Date.now() - tzoffset))
 
     localISOTime.setUTCHours(0, 0, 0, 0)
-    localISOTime.setDate(localISOTime.getDate())
+    localISOTime.setDate(localISOTime.getDate() + 1)
 
     return localISOTime.toISOString()
 }

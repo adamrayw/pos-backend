@@ -121,8 +121,6 @@ async function getTransaksiBulanIni(req, res) {
 }
 
 async function getTransaksi(req, res) {
-    console.log("time " + getISO())
-
     try {
         const response = await prisma.transaksi.findMany({
             orderBy: {
