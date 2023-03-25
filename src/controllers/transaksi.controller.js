@@ -1,7 +1,7 @@
 const prisma = require('../services/prisma.service')
 const generateTransactionID = require('../utils/generateId.utils')
 const axios = require('axios');
-const getISONow = require('../utils/getISO.utils');
+const { getISONow, getISOStartMonth, getISOEndMonth } = require('../utils/getISO.utils');
 
 async function getTransaksiKemarin(req, res) {
     const getISOStart = getISONow()
@@ -38,14 +38,9 @@ async function getTransaksiKemarin(req, res) {
 
 async function getTransaksiBulanKemarin(req, res) {
     /* It's getting the first day of the past month. */
-    const startOfMonth = getISONow()
-    startOfMonth.setUTCHours(0, 0, 0, 0)
-    startOfMonth.setDate('1')
-    startOfMonth.toISOString()
+    const startOfMonth = getISOStartMonth()
 
-    const endOfMonth = getISONow()
-    endOfMonth.setUTCHours(23, 59, 59, 59)
-    endOfMonth.toISOString()
+    const endOfMonth = getISOEndMonth()
 
     try {
         const response = await prisma.transaksi.findMany({
@@ -134,8 +129,8 @@ async function getTransaksi(req, res) {
         })
 
         const trtoday = await getTransaksiHariIni()
-        const trmonth = await getTransaksiBulanIni()
-        const tryesterday = await getTransaksiKemarin()
+        // const trmonth = await getTransaksiBulanIni()
+        // const tryesterday = await getTransaksiKemarin()
         const tryesterdaymonth = await getTransaksiBulanKemarin()
 
         res.json(
@@ -143,8 +138,8 @@ async function getTransaksi(req, res) {
                 'time': getISONow(),
                 'items': response,
                 'transaction_today': trtoday,
-                'transaction_month': trmonth,
-                'transaction_yesterday': tryesterday,
+                // 'transaction_month': trmonth,
+                // 'transaction_yesterday': tryesterday,
                 'transaction_last_month': tryesterdaymonth
 
             }
