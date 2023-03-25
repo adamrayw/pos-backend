@@ -71,9 +71,10 @@ async function getTransaksiBulanKemarin(req, res) {
 }
 
 async function getTransaksiHariIni(req, res) {
-    const todayISO = new Date(getISONow())
+    const todayISO = getISONow()
+    todayISO.setUTCHours(0, 0, 0, 0)
 
-    const todayISO0Hourse = new Date(getISONow())
+    const todayISO0Hourse = getISONow()
     todayISO0Hourse.setUTCHours(23, 59, 59, 0)
     try {
         const response = await prisma.transaksi.findMany({
@@ -81,8 +82,8 @@ async function getTransaksiHariIni(req, res) {
                 AND: [
                     {
                         createdAt: {
-                            gte: todayISO,
-                            lt: todayISO0Hourse
+                            gte: new Date(todayISO),
+                            lt: new Date(todayISO0Hourse)
                         }
                     }, {
 
