@@ -1,29 +1,20 @@
+function getISO() {
+
+    let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    let localISOTime = (new Date(Date.now() - tzoffset))
+
+    localISOTime.setUTCHours(0, 0, 0, 0)
+    localISOTime.setDate(localISOTime.getDate())
+
+    return localISOTime.toISOString()
+}
+
 function getISONow() {
-    let localTime = new Date();
-    let options = { timeZone: 'Asia/Jakarta' };
-    let indonesiaTime = new Date(localTime.toLocaleString('en-US', options));
 
-    return indonesiaTime
+    let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    let localISOTime = (new Date(Date.now() - tzoffset)).toISOString()
+
+    return localISOTime
 }
 
-function getISOStartMonth() {
-    let localTime = new Date();
-    let options = { timeZone: 'Asia/Jakarta' };
-    let indonesiaTime = new Date(localTime.toLocaleString('en-US', options));
-    indonesiaTime.setUTCHours(0, 0, 0, 0)
-    indonesiaTime.setDate('1')
-
-    return indonesiaTime
-}
-
-function getISOEndMonth() {
-    let localTime = new Date();
-    let options = { timeZone: 'Asia/Jakarta' };
-    let indonesiaTime = new Date(localTime.toLocaleString('en-US', options));
-    indonesiaTime.setUTCHours(23, 59, 59, 59)
-    indonesiaTime.setDate('1')
-
-    return indonesiaTime
-}
-
-module.exports = { getISONow, getISOStartMonth, getISOEndMonth }
+module.exports = { getISO, getISONow }
