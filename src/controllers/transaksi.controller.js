@@ -1,7 +1,7 @@
 const prisma = require('../services/prisma.service')
 const generateTransactionID = require('../utils/generateId.utils')
 const axios = require('axios');
-const getISONow = require('../utils/getISO.utils');
+// const getISONow = require('../utils/getISO.utils');
 
 async function getTransaksiKemarin(req, res) {
     let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
@@ -70,7 +70,7 @@ async function getTransaksiBulanKemarin(req, res) {
 }
 
 async function getTransaksiHariIni(req, res) {
-    const now = getISONow()
+    const now = new Date()
     now.setUTCHours(0, 0, 0, 0)
     // current date
     try {
@@ -97,8 +97,10 @@ async function getTransaksiHariIni(req, res) {
 async function getTransaksiBulanIni(req, res) {
     const now = new Date();
     /* It's getting the first day of the past month. */
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth()).toISOString();
-
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth())
+    startOfMonth.setUTCHours(0, 0, 0, 0)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1);
+    endOfMonth.setUTCHours(0, 0, 0, 0)
     try {
         const response = await prisma.transaksi.findMany({
             where: {
@@ -107,7 +109,6 @@ async function getTransaksiBulanIni(req, res) {
                         createdAt: {
                             /* It's getting the first day of the past month. */
                             gte: startOfMonth,
-                            lte: getISONow(),
                         },
                     }, {
 
@@ -138,7 +139,7 @@ async function getTransaksi(req, res) {
 
         res.json(
             {
-                'time': getISONow(),
+                'time': new Date(),
                 'items': response,
                 'transaction_today': trtoday,
                 'transaction_month': trmonth,
