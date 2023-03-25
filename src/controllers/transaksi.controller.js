@@ -71,21 +71,27 @@ async function getTransaksiBulanKemarin(req, res) {
 }
 
 async function getTransaksiHariIni(req, res) {
-    const todayISO = getISONow()
-    todayISO.setHours(0, 0, 0, 0)
-    todayISO.toISOString()
+    // const todayISO = getISONow()
+    // todayISO.setUTCHours(0, 0, 0, 0)
+    // todayISO.toISOString()
 
-    const todayISO0Hourse = getISONow()
-    todayISO0Hourse.setUTCHours(23, 59, 59, 0)
-    todayISO0Hourse.toISOString()
+    // const todayISO0Hourse = getISONow()
+    // todayISO0Hourse.setUTCHours(23, 59, 59, 0)
+    // todayISO0Hourse.toISOString()
+
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
+
+    const endOfToday = new Date();
+    endOfToday.setUTCHours(23, 59, 59, 999);
     try {
         const response = await prisma.transaksi.findMany({
             where: {
                 AND: [
                     {
                         createdAt: {
-                            gte: todayISO,
-                            lte: todayISO0Hourse
+                            gte: startOfToday,
+                            lt: endOfToday
                         }
                     }, {
 
