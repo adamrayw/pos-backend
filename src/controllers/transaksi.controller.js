@@ -95,12 +95,9 @@ async function getTransaksiHariIni(req, res) {
 }
 
 async function getTransaksiBulanIni(req, res) {
-    const now = new Date();
+    const currentDate = new Date();
     /* It's getting the first day of the past month. */
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth())
-    startOfMonth.setUTCHours(0, 0, 0, 0)
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1);
-    endOfMonth.setUTCHours(0, 0, 0, 0)
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     try {
         const response = await prisma.transaksi.findMany({
             where: {
@@ -108,7 +105,7 @@ async function getTransaksiBulanIni(req, res) {
                     {
                         createdAt: {
                             /* It's getting the first day of the past month. */
-                            gte: startOfMonth,
+                            gte: firstDayOfMonth,
                         },
                     }, {
 
