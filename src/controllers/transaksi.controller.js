@@ -72,6 +72,7 @@ async function getTransaksiBulanKemarin(req, res) {
 
 async function getTransaksiHariIni(req, res) {
     const todayISO = getISONow()
+    todayISO.setUTCHours(0, 0, 0, 0)
 
     const todayISO0Hourse = getISONow()
     todayISO0Hourse.setUTCHours(23, 59, 59, 0)
@@ -100,9 +101,9 @@ async function getTransaksiHariIni(req, res) {
 async function getTransaksiBulanIni(req, res) {
     const now = getISONow()
     /* It's getting the first day of the past month. */
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
 
     try {
@@ -112,8 +113,8 @@ async function getTransaksiBulanIni(req, res) {
                     {
                         createdAt: {
                             /* It's getting the first day of the past month. */
-                            gte: startOfMonth,
-                            lte: endOfMonth,
+                            gte: startOfMonth.toISOString(),
+                            lte: endOfMonth.toISOString()
                         },
                     }, {
 
