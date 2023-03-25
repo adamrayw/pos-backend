@@ -46,6 +46,6 @@ model Transaksi {
   token        String?
   redirect_url String?
   isPaid       Boolean
-  createdAt    DateTime?
+  createdAt    DateTime  @default(now())
   updatedAt    DateTime?
 }

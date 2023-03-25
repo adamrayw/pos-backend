@@ -193,7 +193,6 @@ async function postTransaksi(req, res) {
                 token,
                 redirect_url,
                 isPaid: false,
-                createdAt: getISONow()
 
             }
         })
