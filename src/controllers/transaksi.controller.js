@@ -71,10 +71,7 @@ async function getTransaksiBulanKemarin(req, res) {
 }
 
 async function getTransaksiHariIni(req, res) {
-    const todayISO = getISONow()
-    todayISO.setUTCHours(0, 0, 0, 0)
-    todayISO.toISOString()
-
+    const startOfDay = new Date(todayISO.substring(0, 10) + 'T00:00:00' + todayISO.substring(19));
     const todayISO0Hourse = getISONow()
     todayISO0Hourse.setUTCHours(23, 59, 59, 0)
     todayISO0Hourse.toISOString()
@@ -84,7 +81,7 @@ async function getTransaksiHariIni(req, res) {
                 AND: [
                     {
                         createdAt: {
-                            gte: todayISO,
+                            gte: startOfDay,
                             lt: todayISO0Hourse
                         }
                     }, {
