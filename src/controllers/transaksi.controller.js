@@ -1,7 +1,7 @@
 const prisma = require('../services/prisma.service')
 const generateTransactionID = require('../utils/generateId.utils')
 const axios = require('axios');
-const { getISO, getISONow } = require('../utils/getISO.utils');
+const getISONow = require('../utils/getISO.utils');
 
 async function getTransaksiKemarin(req, res) {
     let tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
@@ -70,13 +70,16 @@ async function getTransaksiBulanKemarin(req, res) {
 }
 
 async function getTransaksiHariIni(req, res) {
+    const now = getISONow()
+    now.setUTCHours(0, 0, 0, 0)
+    // current date
     try {
         const response = await prisma.transaksi.findMany({
             where: {
                 AND: [
                     {
                         createdAt: {
-                            gt: getISO()
+                            gt: now
                         }
                     }, {
 
@@ -135,7 +138,7 @@ async function getTransaksi(req, res) {
 
         res.json(
             {
-                'time': getISO(),
+                'time': getISONow(),
                 'items': response,
                 'transaction_today': trtoday,
                 'transaction_month': trmonth,
