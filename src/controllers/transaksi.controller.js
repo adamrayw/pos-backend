@@ -75,7 +75,6 @@ async function getTransaksiHariIni(req, res) {
 
     const todayISO0Hourse = getISONow()
     todayISO0Hourse.setUTCHours(23, 59, 59, 0)
-    todayISO0Hourse.toISOString()
     try {
         const response = await prisma.transaksi.findMany({
             where: {
@@ -83,7 +82,7 @@ async function getTransaksiHariIni(req, res) {
                     {
                         createdAt: {
                             gte: todayISO.toISOString(),
-                            lt: todayISO0Hourse
+                            lt: todayISO0Hourse.toISOString()
                         }
                     }, {
 
