@@ -63,10 +63,8 @@ async function getTransaksiBulanKemarin(req, res) {
 
 async function getTransaksiHariIni(req, res) {
     const currentDate = new Date();
-    let options = { timeZone: 'Asia/Jakarta' };
-    const date = new Date(currentDate.toLocaleString('en-US', options));
-    const beginningOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-    const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+    const beginningOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
     try {
         const response = await prisma.transaksi.findMany({
             where: {
