@@ -211,7 +211,8 @@ async function handling(req, res) {
                 isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false)
             }
         })
-
+        console.log(responseFromMidtrans)
+        console.log(updatePaymentStatus)
     } catch (error) {
         console.log(error)
     }
