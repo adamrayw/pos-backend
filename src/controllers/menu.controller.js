@@ -85,14 +85,12 @@ async function edit(req, res) {
                 name,
                 price: parseInt(price),
                 image: (imageEdited === true || imageEdited === 'true' ? imageUrl : image),
-                kategoriId
             }
         })
 
         res.json({ 'message': 'item successfully edited!' })
     } catch (err) {
         console.log(err)
-        next(err)
     }
 }
 
