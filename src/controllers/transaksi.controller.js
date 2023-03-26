@@ -63,15 +63,17 @@ async function getTransaksiBulanKemarin(req, res) {
 
 async function getTransaksiHariIni(req, res) {
     const currentDate = new Date();
-    const beginningOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
-    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
+    // const beginningOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
+    // const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
+    const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
     try {
         const response = await prisma.transaksi.findMany({
             where: {
                 AND: [
                     {
                         createdAt: {
-                            gte: beginningOfDay,
+                            gte: startOfDay,
                             lte: endOfDay
                         }
                     }, {
