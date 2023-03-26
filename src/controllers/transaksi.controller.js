@@ -5,8 +5,8 @@ const axios = require('axios');
 
 async function getTransaksiKemarin(req, res) {
     const yesterday = new Date();
-    const beginningOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 2, 0, 0, 0, 0);
-    const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 2, 23, 59, 59, 999);
+    const beginningOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 1, 0, 0, 0, 0);
+    const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 1, 23, 59, 59, 999);
 
     try {
         const response = await prisma.transaksi.findMany({
