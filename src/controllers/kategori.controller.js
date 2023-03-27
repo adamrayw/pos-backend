@@ -62,9 +62,28 @@ async function getById(req, res) {
     }
 }
 
+async function edit(req, res) {
+    const { id, name } = req.body
+
+    try {
+        await prisma.kategori.update({
+            where: {
+                id: id
+            },
+            data: {
+                name: name
+            }
+        })
+
+        res.json({ 'message': 'kategori successfully edited!' })
+    } catch (err) {
+        console.log(err)
+    }
+}
 module.exports = {
     getKategori,
     addKategori,
     remove,
-    getById
+    getById,
+    edit
 }
