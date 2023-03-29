@@ -159,8 +159,13 @@ async function postTransaksi(req, res) {
             authorization: "Basic " + enocodedMidtransKey
         },
         data: {
-            transaction_details: { order_id: id, gross_amount: dataTransaksi.data.total },
-            credit_card: { secure: true }
+            transaction_details: {
+                order_id: id,
+                gross_amount: dataTransaksi.data.total
+            },
+            credit_card: {
+                secure: true
+            },
         }
     }
 
