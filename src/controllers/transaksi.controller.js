@@ -206,7 +206,7 @@ async function postTransaksi(req, res) {
 async function handling(req, res) {
     const responseFromMidtrans = req.body
     try {
-        const getTransaction = await prisma.transaksi.update({
+        const getTransaction = await prisma.transaksi.findUnique({
             where: {
                 transaksiId: responseFromMidtrans.order_id
             },
