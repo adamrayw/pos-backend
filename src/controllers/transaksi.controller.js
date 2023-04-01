@@ -206,17 +206,32 @@ async function postTransaksi(req, res) {
 async function handling(req, res) {
     const responseFromMidtrans = req.body
     try {
-        const updatePaymentStatus = await prisma.transaksi.update({
+        const getTransaction = await prisma.transaksi.update({
             where: {
                 transaksiId: responseFromMidtrans.order_id
             },
-            data: {
-                isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false)
-            }
         })
+
+        if (getTransaction.isPaid === false) {
+            try {
+                await prisma.transaksi.update({
+                    where: {
+                        transaksiId: responseFromMidtrans.order_id
+                    },
+                    data: {
+                        isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement') ? true : false
+                    }
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            console.log("Transaksi sudah dibayar")
+        }
     } catch (error) {
         console.log(error)
     }
+
 }
 
 module.exports = {
