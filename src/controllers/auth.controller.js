@@ -61,52 +61,52 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     // check if email exists
-    // try {
-    const user = await prisma.user.findUnique({
-        where: {
-            email
-        }
-    })
-
-    // if email doesn't exist, return error
-    if (user === null) {
-        return res.status(400).json({
-            status: 400,
-            status_text: "not found",
-            message: "User doesn't exist!"
-        })
-    }
-
-    // if email exists, check password
-    const match = await bcrypt.compare(password, user.password);
-
-    // if password match return user data
-    if (match) {
-        res.status(200).json({
-            status: 200,
-            status_text: "success",
-            message: "User successfully logged in!",
-            data: {
-                email: user.email,
-                nama_usaha: user.nama_usaha,
-                token: generateAccessToken({ email: user.email })
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                email
             }
         })
-    } else {
-        res.status(400).json({
-            status: 400,
-            status_text: "error",
-            message: "Email or password is incorrect!"
+
+        // if email doesn't exist, return error
+        if (user === null) {
+            return res.status(400).json({
+                status: 400,
+                status_text: "not found",
+                message: "User doesn't exist!"
+            })
+        }
+
+        // if email exists, check password
+        const match = await bcrypt.compare(password, user.password);
+
+        // if password match return user data
+        if (match) {
+            res.status(200).json({
+                status: 200,
+                status_text: "success",
+                message: "User successfully logged in!",
+                data: {
+                    email: user.email,
+                    nama_usaha: user.nama_usaha,
+                    token: generateAccessToken({ email: user.email })
+                }
+            })
+        } else {
+            res.status(400).json({
+                status: 400,
+                status_text: "error",
+                message: "Email or password is incorrect!"
+            })
+        }
+
+    } catch (error) {
+        res.status(500).json({
+            status: 500,
+            message: "Something went wrong!",
+            error
         })
     }
-
-    // } catch (error) {
-    res.status(500).json({
-        status: 500,
-        message: "Something went wrong!",
-        error
-    })
-    // }
 }
 
 module.exports = {
