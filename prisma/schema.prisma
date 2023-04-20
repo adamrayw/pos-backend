@@ -11,11 +11,20 @@ datasource db {
 }
 
 model User {
-  id        String    @id @unique @default(uuid())
-  email     String    @unique
-  name      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime?
+  id         String    @id @unique @default(uuid())
+  nama_usaha String?
+  email      String    @unique
+  password   String
+  type       Type?
+  expired    DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+}
+
+enum Type {
+  Basic
+  Pro
+  Plus
 }
 
 model Item {
