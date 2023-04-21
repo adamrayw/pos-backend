@@ -166,6 +166,9 @@ async function postTransaksi(req, res) {
             credit_card: {
                 secure: true
             },
+            items_details: [{
+                category: "menu"
+            }]
         }
     }
 
@@ -205,6 +208,9 @@ async function postTransaksi(req, res) {
 
 async function handling(req, res) {
     const responseFromMidtrans = req.body
+
+    console.log(responseFromMidtrans)
+
     try {
         const getTransaction = await prisma.transaksi.findUnique({
             where: {
@@ -234,11 +240,76 @@ async function handling(req, res) {
 
 }
 
+const subscribe = async (req, res) => {
+    const { userId, price, nama_paket, type } = req.body
+
+    const id = generateTransactionID()
+
+    const enocodedMidtransKey = Buffer.from(process.env.SERVER_KEY_MIDTRANS).toString('base64')
+
+    const options = {
+        method: "POST",
+        url: "https://app.sandbox.midtrans.com/snap/v1/transactions",
+        headers: {
+            accept: "application/json",
+            'content-type': "application/json",
+            authorization: "Basic " + enocodedMidtransKey
+        },
+        data: {
+            transaction_details: {
+                order_id: id,
+                gross_amount: price
+            },
+            credit_card: {
+                secure: true
+            },
+            items_details: [{
+                category: "menu"
+            }]
+        }
+    }
+
+    const { token, redirect_url } = await axios.request(options)
+        .then((response) => {
+            return response.data
+        })
+        .then((error) => {
+            return error
+        })
+
+
+    try {
+        const response = await prisma.subscriptions.create({
+            data: {
+                user: { connect: { id: userId } },
+                transaksiId: id,
+                price: price,
+                token,
+                type: nama_paket,
+                expired: new Date(),
+                redirect_url,
+                isPaid: false,
+
+            }
+        })
+
+        res.json(
+            {
+                "message": "Payment Link successfully created!",
+                "data": response
+            }
+        )
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     getTransaksi,
     postTransaksi,
     handling,
     getTransaksiHariIni,
     getTransaksiKemarin,
-    getTransaksiBulanKemarin
+    getTransaksiBulanKemarin,
+    subscribe
 }

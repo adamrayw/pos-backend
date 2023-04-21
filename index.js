@@ -5,6 +5,7 @@ const menuRouter = require('./src/routes/menu.route')
 const kategoriRouter = require('./src/routes/kategori.route')
 const transaksiRouter = require('./src/routes/transaksi.route')
 const authRouter = require('./src/routes/auth.route')
+const userRouter = require('./src/routes/user.route')
 const cors = require('cors');
 const multer = require('multer');
 const upload = multer()
@@ -22,6 +23,7 @@ app.use('/api/menu', menuRouter)
 app.use('/api/kategori', kategoriRouter)
 app.use('/api/transaksi', transaksiRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
 
 app.get('/', (req, res) => {
     res.json({ 'message': 'ok' })
