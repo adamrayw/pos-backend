@@ -6,7 +6,7 @@ const authenticateToken = require('../middlewares/authentication.middleware');
 // Get Menus
 router.get('/', authenticateToken, kategoriController.getKategori)
 router.post('/add', authenticateToken, kategoriController.addKategori)
-router.delete('/remove', authenticateToken, kategoriController.remove)
+router.delete('/remove/:id', authenticateToken, kategoriController.remove)
 router.get('/getbyid/:id', authenticateToken, kategoriController.getById)
 router.put('/edit', authenticateToken, kategoriController.edit)
 

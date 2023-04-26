@@ -85,6 +85,7 @@ async function edit(req, res) {
                 name,
                 price: parseInt(price),
                 image: (imageEdited === true || imageEdited === 'true' ? imageUrl : image),
+                kategoriId
             }
         })
 
@@ -95,12 +96,12 @@ async function edit(req, res) {
 }
 
 async function remove(req, res) {
-    const body = req.body
+    const id = req.params.id
 
     try {
         await prisma.item.delete({
             where: {
-                id: body.id
+                id
             }
         })
 

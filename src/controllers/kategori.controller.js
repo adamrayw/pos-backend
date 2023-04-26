@@ -30,12 +30,12 @@ async function addKategori(req, res, next) {
 }
 
 async function remove(req, res) {
-    const kategori = req.body
+    const kategori = req.params.id
 
     try {
         await prisma.kategori.delete({
             where: {
-                id: kategori.id
+                id: kategori
             }
         })
 

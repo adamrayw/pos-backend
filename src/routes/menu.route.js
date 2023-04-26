@@ -13,7 +13,7 @@ const upload = Multer({
 router.get('/', authenticateToken, menuController.getAllItem)
 router.post('/add', authenticateToken, upload.single("image"), menuController.addItem)
 router.put('/edit', authenticateToken, upload.single("image"), menuController.edit)
-router.delete('/remove', authenticateToken, menuController.remove)
+router.delete('/remove/:id', authenticateToken, menuController.remove)
 router.get('/search/:query', authenticateToken, menuController.search)
 
 module.exports = router
