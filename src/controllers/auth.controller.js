@@ -80,6 +80,13 @@ const login = async (req, res) => {
         // if email exists, check password
         const match = await bcrypt.compare(password, user.password);
 
+        const isHaveActiveSubscription = await prisma.subscriptions.findFirst({
+            where: {
+                userId: user.id,
+                isActived: true
+            }
+        })
+
         // if password match return user data
         if (match) {
             res.status(200).json({
@@ -90,7 +97,8 @@ const login = async (req, res) => {
                     id: user.id,
                     email: user.email,
                     nama_usaha: user.nama_usaha,
-                    token: generateAccessToken({ email: user.email })
+                    token: generateAccessToken({ email: user.email }),
+                    isHaveActiveSubscription: isHaveActiveSubscription !== null ? true : false
                 }
             })
         } else {
@@ -104,7 +112,7 @@ const login = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             status: 500,
-            message: "Something went wrong!",
+            message: "Something wents wrong!",
             error
         })
     }

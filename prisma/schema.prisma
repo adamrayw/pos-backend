@@ -69,6 +69,7 @@ model Subscriptions {
   isPaid       Boolean
   redirect_url String?
   token        String?
+  isActived    Boolean   @default(false)
   transaksiId  String?
   expired      DateTime?
   createdAt    DateTime  @default(now())

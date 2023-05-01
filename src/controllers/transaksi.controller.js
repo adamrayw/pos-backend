@@ -2,6 +2,7 @@ const prisma = require('../services/prisma.service')
 const generateTransactionID = require('../utils/generateId.utils')
 const axios = require('axios');
 // const getISONow = require('../utils/getISO.utils');
+const getSubscriptionDate = require('../utils/getSubscriptionDate.util');
 
 async function getTransaksiKemarin(req, res) {
     const yesterday = new Date();
@@ -209,31 +210,68 @@ async function postTransaksi(req, res) {
 async function handling(req, res) {
     const responseFromMidtrans = req.body
 
-    console.log(responseFromMidtrans)
-
     try {
-        const getTransaction = await prisma.transaksi.findUnique({
+        const getTransaction = await prisma.transaksi.findFirst({
+            where: {
+                transaksiId: responseFromMidtrans.order_id
+            }
+        })
+
+        const getTransactionSubs = await prisma.subscriptions.findFirst({
             where: {
                 transaksiId: responseFromMidtrans.order_id
             },
+            include: {
+                user: true
+            }
         })
 
-        if (getTransaction.isPaid === false) {
-            try {
-                await prisma.transaksi.update({
-                    where: {
-                        transaksiId: responseFromMidtrans.order_id
-                    },
-                    data: {
-                        isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement') ? true : false
-                    }
-                })
-            } catch (error) {
-                console.log(error)
+        if (getTransaction !== null) {
+            if (getTransaction.isPaid === false) {
+                try {
+                    await prisma.transaksi.update({
+                        where: {
+                            id: getTransaction.id
+                        },
+                        data: {
+                            isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement') ? true : false
+                        }
+                    })
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                console.log("Transaksi sudah dibayar")
             }
-        } else {
-            console.log("Transaksi sudah dibayar")
         }
+
+        if (getTransactionSubs !== null) {
+            if (getTransactionSubs.isPaid === false) {
+                console.log(getTransactionSubs.type)
+                try {
+                    await prisma.subscriptions.update({
+                        where: {
+                            id: getTransactionSubs.id
+                        },
+                        data: {
+                            isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement') ? true : false,
+                            isActived: true,
+                            expired: getSubscriptionDate(getTransactionSubs.type),
+                            user: {
+                                update: {
+                                    expired: getSubscriptionDate(getTransactionSubs.type),
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                console.log("Transaksi sudah dibayar")
+            }
+        }
+
     } catch (error) {
         console.log(error)
     }
@@ -267,6 +305,25 @@ const subscribe = async (req, res) => {
                 category: "menu"
             }]
         }
+    }
+
+    const isHaveActiveSubscription = await prisma.subscriptions.findFirst({
+        where: {
+            user: {
+                id: userId
+            },
+            isActived: true
+        }
+    })
+
+    if (isHaveActiveSubscription !== null) {
+        res.status(400).json(
+            {
+                "message": "Anda sudah memiliki langganan aktif!",
+                "data": isHaveActiveSubscription
+            }
+        )
+        return
     }
 
     const { token, redirect_url } = await axios.request(options)

@@ -6,7 +6,7 @@ const router = express.Router()
 router.get('/get', authenticateToken, transaksiController.getTransaksi)
 router.get('/getTransaksiYesterday', authenticateToken, transaksiController.getTransaksiBulanKemarin)
 router.post('/post', authenticateToken, transaksiController.postTransaksi)
-router.post('/handling', authenticateToken, transaksiController.handling)
+router.post('/handling', transaksiController.handling)
 router.post('/subscribe', authenticateToken, transaksiController.subscribe)
 
 module.exports = router
