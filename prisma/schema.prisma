@@ -20,6 +20,9 @@ model User {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?
   subscriptions Subscriptions[]
+  Kategori      Kategori[]
+  Item          Item[]
+  Transaksi     Transaksi[]
 }
 
 enum Type {
@@ -32,6 +35,8 @@ model Item {
   id         String    @id @unique @default(uuid())
   kategori   Kategori? @relation(fields: [kategoriId], references: [id])
   kategoriId String?
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?
   image      String
   name       String
   price      Int
@@ -42,6 +47,8 @@ model Item {
 
 model Kategori {
   id        String    @id @unique @default(uuid())
+  user      User?     @relation(fields: [userId], references: [id])
+  userId    String?
   name      String
   createdAt DateTime  @default(now())
   updatedAt DateTime?
@@ -51,6 +58,8 @@ model Kategori {
 model Transaksi {
   id           String    @id @unique @default(uuid())
   transaksiId  String?   @unique
+  user         User?     @relation(fields: [userId], references: [id])
+  userId       String?
   menu         Json?
   total        Int
   token        String?

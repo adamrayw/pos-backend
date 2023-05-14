@@ -10,10 +10,10 @@ const upload = Multer({
 })
 
 // Get Menus
-router.get('/', authenticateToken, menuController.getAllItem)
+router.get('/:id', authenticateToken, menuController.getAllItem)
 router.post('/add', authenticateToken, upload.single("image"), menuController.addItem)
 router.put('/edit', authenticateToken, upload.single("image"), menuController.edit)
 router.delete('/remove/:id', authenticateToken, menuController.remove)
-router.get('/search/:query', authenticateToken, menuController.search)
+router.get('/search/:id/:query', authenticateToken, menuController.search)
 
 module.exports = router

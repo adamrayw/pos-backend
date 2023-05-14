@@ -4,27 +4,30 @@ const axios = require('axios');
 // const getISONow = require('../utils/getISO.utils');
 const getSubscriptionDate = require('../utils/getSubscriptionDate.util');
 
-async function getTransaksiKemarin(req, res) {
+async function getTransaksiKemarin(id) {
     const yesterday = new Date();
     const beginningOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 1, 0, 0, 0, 0);
     const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 1, 23, 59, 59, 999);
 
+    console.log(id)
+
     try {
-        const response = await prisma.transaksi.findMany({
+        const response = await prisma.user.findUnique({
             where: {
-                AND: [
-                    {
+                id,
+            },
+            include: {
+                Transaksi: {
+                    where: {
                         createdAt: {
                             gte: beginningOfYesterday,
                             lte: endOfYesterday
-                        }
+                        },
+                        isPaid: true,
                     },
-                    {
-                        isPaid: true
-                    }
-                ]
-            }
-        })
+                },
+            },
+        });
 
         return response
     } catch (error) {
@@ -32,27 +35,29 @@ async function getTransaksiKemarin(req, res) {
     }
 }
 
-async function getTransaksiBulanKemarin(req, res) {
+async function getTransaksiBulanKemarin(id) {
     const currentDate = new Date();
     const beginningOfLastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
     const endOfLastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0, 23, 59, 59, 999);
 
     try {
-        const response = await prisma.transaksi.findMany({
+        const response = await prisma.user.findUnique({
             where: {
-                AND: [
-                    {
+                id,
+            },
+            include: {
+                Transaksi: {
+                    where: {
                         createdAt: {
                             gte: beginningOfLastMonth,
-                            lte: endOfLastMonth
-                        }
+                            lte: endOfLastMonth,
+                        },
+                        isPaid: true,
                     },
-                    {
-                        isPaid: true
-                    }
-                ]
-            }
-        })
+                },
+            },
+        });
+
 
         return response
     } catch (error) {
@@ -60,54 +65,58 @@ async function getTransaksiBulanKemarin(req, res) {
     }
 }
 
-async function getTransaksiHariIni(req, res) {
+async function getTransaksiHariIni(id) {
     const currentDate = new Date();
     const beginningOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
     const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
     try {
-        const response = await prisma.transaksi.findMany({
+        const response = await prisma.user.findUnique({
             where: {
-                AND: [
-                    {
+                id,
+            },
+            include: {
+                Transaksi: {
+                    where: {
                         createdAt: {
                             gte: beginningOfDay,
                             lte: endOfDay
-                        }
-                    }, {
+                        },
+                        isPaid: true,
+                    },
+                },
+            },
+        });
 
-                        isPaid: true
-                    }
-                ]
-            }
-        })
+
         return response
     } catch (error) {
         console.log(error)
     }
 }
 
-async function getTransaksiBulanIni(req, res) {
+async function getTransaksiBulanIni(id) {
     const currentDate = new Date();
     const beginningOfThisMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfThisMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999);
 
     try {
-        const response = await prisma.transaksi.findMany({
+        const response = await prisma.user.findUnique({
             where: {
-                AND: [
-                    {
+                id,
+            },
+            include: {
+                Transaksi: {
+                    where: {
                         createdAt: {
                             /* It's getting the first day of the past month. */
                             gte: beginningOfThisMonth,
                             lte: endOfThisMonth
                         },
-                    }, {
-
-                        isPaid: true
-                    }
-                ]
-            }
-        })
+                        isPaid: true,
+                    },
+                },
+            },
+        });
 
         return response
     } catch (error) {
@@ -116,17 +125,26 @@ async function getTransaksiBulanIni(req, res) {
 }
 
 async function getTransaksi(req, res) {
+    const id = await req.params.id
+
     try {
-        const response = await prisma.transaksi.findMany({
-            orderBy: {
-                createdAt: 'desc'
+        const response = await prisma.user.findUnique({
+            where: {
+                id
+            },
+            include: {
+                Transaksi: {
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
             }
         })
 
-        const trtoday = await getTransaksiHariIni()
-        const trmonth = await getTransaksiBulanIni()
-        const tryesterday = await getTransaksiKemarin()
-        const tryesterdaymonth = await getTransaksiBulanKemarin()
+        const trtoday = await getTransaksiHariIni(id)
+        const trmonth = await getTransaksiBulanIni(id)
+        const tryesterday = await getTransaksiKemarin(id)
+        const tryesterdaymonth = await getTransaksiBulanKemarin(id)
 
         res.json(
             {

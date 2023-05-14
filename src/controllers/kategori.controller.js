@@ -3,9 +3,16 @@ const cloudinary = require('../../src/services/cloudinary.service')
 
 async function getKategori(req, res, next) {
     try {
-        const response = await prisma.kategori.findMany()
+        const response = await prisma.user.findUnique({
+            where: {
+                id: req.params['id'],
+            },
+            include: {
+                Kategori: true
+            }
+        })
 
-        res.json({ 'items': response })
+        res.json({ 'items': response.Kategori })
     } catch (error) {
         console.log(error)
         next(error)
@@ -18,7 +25,8 @@ async function addKategori(req, res, next) {
     try {
         await prisma.kategori.create({
             data: {
-                name: kategori.name
+                name: kategori.name,
+                userId: kategori.userId
             }
         })
 

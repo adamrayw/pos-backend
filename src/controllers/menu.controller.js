@@ -2,13 +2,18 @@ const prisma = require('../services/prisma.service')
 const cloudinary = require('../../src/services/cloudinary.service')
 
 async function getAllItem(req, res, next) {
+    const id = req.params['id']
+
     try {
-        const response = await prisma.item.findMany({
-            orderBy: {
-                createdAt: 'desc'
+        const response = await prisma.user.findUnique({
+            where: {
+                id
+            },
+            include: {
+                Item: true
             }
         })
-        res.json({ 'items': response })
+        res.json({ 'items': response.Item })
     } catch (error) {
         console.log(error)
         next(error)
@@ -113,18 +118,27 @@ async function remove(req, res) {
 
 async function search(req, res) {
     const query = req.params.query
+    const id = req.params.id
 
     try {
-        const response = await prisma.item.findMany({
+        const response = await prisma.user.findUnique({
             where: {
-                name: {
-                    contains: query,
-                    mode: 'insensitive'
+                id
+            },
+            include: {
+                Item: {
+                    where: {
+                        name: {
+                            contains: query,
+                            mode: 'insensitive'
+                        }
+                    }
                 }
-            }
+            },
+
         })
         // console.log(response)
-        res.json({ 'items': response })
+        res.json({ 'items': response.Item })
     } catch (error) {
         console.log(error)
     }
