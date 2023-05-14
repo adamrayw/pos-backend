@@ -38,6 +38,7 @@ async function uploadImage(imagePath) {
 
 async function addItem(req, res, next) {
     const { name, price, kategoriId } = req.body
+    const id = req.params.id
     let imageUrl = ''
 
     try {
@@ -54,7 +55,8 @@ async function addItem(req, res, next) {
                 name,
                 price: parseInt(price),
                 image: imageUrl,
-                kategoriId
+                kategoriId,
+                userId: id
 
             }
         })

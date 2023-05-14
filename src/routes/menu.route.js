@@ -11,7 +11,7 @@ const upload = Multer({
 
 // Get Menus
 router.get('/:id', authenticateToken, menuController.getAllItem)
-router.post('/add', authenticateToken, upload.single("image"), menuController.addItem)
+router.post('/add/:id', authenticateToken, upload.single("image"), menuController.addItem)
 router.put('/edit', authenticateToken, upload.single("image"), menuController.edit)
 router.delete('/remove/:id', authenticateToken, menuController.remove)
 router.get('/search/:id/:query', authenticateToken, menuController.search)
