@@ -10,7 +10,11 @@ async function getAllItem(req, res, next) {
                 id
             },
             include: {
-                Item: true
+                Item: {
+                    include: {
+                        kategori: true
+                    }
+                }
             }
         })
         res.json({ 'items': response.Item })
@@ -70,6 +74,8 @@ async function addItem(req, res, next) {
 
 async function edit(req, res) {
     const { id, image, name, price, imageEdited, kategoriId } = req.body
+
+    console.log(kategoriId)
 
     let imageUrl = ''
 
