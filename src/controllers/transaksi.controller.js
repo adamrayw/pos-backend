@@ -363,7 +363,6 @@ const subscribe = async (req, res) => {
                 price: price,
                 token,
                 type: nama_paket,
-                expired: new Date(),
                 redirect_url,
                 isPaid: false,
 

@@ -9,8 +9,13 @@ const getDashboard = async (req, res) => {
                 id: id
             },
             include: {
-                subscriptions: true
-            }
+                subscriptions: {
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
+            },
+
         })
 
         const now = new Date()
