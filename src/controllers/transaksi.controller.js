@@ -164,6 +164,7 @@ async function getTransaksi(req, res) {
 
 async function postTransaksi(req, res) {
     const dataTransaksi = req.body
+    const userId = req.params.id
 
     const id = generateTransactionID()
 
@@ -210,6 +211,7 @@ async function postTransaksi(req, res) {
                 token,
                 redirect_url,
                 isPaid: false,
+                userId
 
             }
         })
