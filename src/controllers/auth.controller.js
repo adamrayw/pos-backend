@@ -6,10 +6,28 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+
+/**
+ * The function generates a JSON Web Token (JWT) access token with a one-day expiration time based on
+ * the provided email and a secret key stored in an environment variable.
+ * @param email - The email parameter is the email address of the user for whom the access token is
+ * being generated. This email will be used as the payload of the JSON Web Token (JWT).
+ * @returns a JSON Web Token (JWT) that has been signed with a secret key and will expire after one
+ * day. The payload of the JWT is the email parameter that is passed into the function.
+ */
 function generateAccessToken(email) {
     return jwt.sign(email, process.env.TOKEN_SECRET, { expiresIn: '1d' })
 }
 
+/**
+ * This function registers a new user by checking if the email already exists, creating a new user if
+ * it doesn't, and returning an error if it does.
+ * @returns The `register` function returns a response object with a status code, status text, message,
+ * and data. The status code and status text indicate whether the request was successful or not. If the
+ * email already exists, the function returns an error message. If the email doesn't exist, the
+ * function creates a new user and returns a success message with the user's email, business name, and
+ * a token
+ */
 const register = async (req, res) => {
     const { email, nama_usaha, password } = req.body;
 
@@ -44,9 +62,11 @@ const register = async (req, res) => {
             status_text: "success",
             message: "User successfully created!",
             data: {
-                email: response.email,
-                nama_usaha: response.nama_usaha,
-                token: generateAccessToken({ email })
+                id: user.id,
+                email: user.email,
+                nama_usaha: user.nama_usaha,
+                token: generateAccessToken({ email: user.email }),
+                isHaveActiveSubscription: isHaveActiveSubscription !== null ? true : false
             }
         })
     } catch (error) {
@@ -57,6 +77,14 @@ const register = async (req, res) => {
     }
 }
 
+/**
+ * This is a login function that checks if the email exists, verifies the password, and returns user
+ * data if successful.
+ * @returns The code is a function called `login` that handles a POST request to log in a user. It
+ * checks if the email exists in the database, and if it does, it checks if the password matches. If
+ * the password matches, it returns a JSON response with the user's data and a generated access token.
+ * If the email doesn't exist or the password doesn't match, it returns an error
+ */
 const login = async (req, res) => {
     const { email, password } = req.body;
 

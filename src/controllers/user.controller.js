@@ -63,6 +63,35 @@ const getDashboard = async (req, res) => {
     }
 }
 
+const checkSubscription = async (req, res) => {
+    const id = req.params.id
+
+    const response = await prisma.subscriptions.findFirst({
+        where: {
+            userId: id,
+            isActived: true
+        }
+    })
+
+    if (response === null) {
+        res.json({
+            status: 404,
+            status_text: "not found",
+            isHaveActiveSubscription: false,
+            message: "User doesn't have active subscription!"
+        })
+    } else {
+        res.json({
+            status: 200,
+            status_text: "success",
+            isHaveActiveSubscription: true,
+            message: "User have active subscription!",
+            data: response
+        })
+    }
+}
+
 module.exports = {
-    getDashboard
+    getDashboard,
+    checkSubscription
 }
