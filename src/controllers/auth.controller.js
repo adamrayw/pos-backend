@@ -66,7 +66,6 @@ const register = async (req, res) => {
                 email: user.email,
                 nama_usaha: user.nama_usaha,
                 token: generateAccessToken({ email: user.email }),
-                isHaveActiveSubscription: isHaveActiveSubscription !== null ? true : false
             }
         })
     } catch (error) {
@@ -108,13 +107,6 @@ const login = async (req, res) => {
         // if email exists, check password
         const match = await bcrypt.compare(password, user.password);
 
-        const isHaveActiveSubscription = await prisma.subscriptions.findFirst({
-            where: {
-                userId: user.id,
-                isActived: true
-            }
-        })
-
         // if password match return user data
         if (match) {
             res.status(200).json({
@@ -126,7 +118,6 @@ const login = async (req, res) => {
                     email: user.email,
                     nama_usaha: user.nama_usaha,
                     token: generateAccessToken({ email: user.email }),
-                    isHaveActiveSubscription: isHaveActiveSubscription !== null ? true : false
                 }
             })
         } else {

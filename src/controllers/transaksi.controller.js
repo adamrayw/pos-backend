@@ -165,66 +165,98 @@ async function getTransaksi(req, res) {
 async function postTransaksi(req, res) {
     const dataTransaksi = req.body
     const userId = req.params.id
+    const paymentMethod = req.params.paymentMethod
 
     const id = generateTransactionID()
+    if (paymentMethod === 'midtrans') {
 
-    const enocodedMidtransKey = Buffer.from(process.env.SERVER_KEY_MIDTRANS).toString('base64')
 
-    const options = {
-        method: "POST",
-        url: "https://app.sandbox.midtrans.com/snap/v1/transactions",
-        headers: {
-            accept: "application/json",
-            'content-type': "application/json",
-            authorization: "Basic " + enocodedMidtransKey
-        },
-        data: {
-            transaction_details: {
-                order_id: id,
-                gross_amount: dataTransaksi.data.total
+        const enocodedMidtransKey = Buffer.from(process.env.SERVER_KEY_MIDTRANS).toString('base64')
+
+        const options = {
+            method: "POST",
+            url: "https://app.sandbox.midtrans.com/snap/v1/transactions",
+            headers: {
+                accept: "application/json",
+                'content-type': "application/json",
+                authorization: "Basic " + enocodedMidtransKey
             },
-            credit_card: {
-                secure: true
-            },
-            items_details: [{
-                category: "menu"
-            }]
+            data: {
+                transaction_details: {
+                    order_id: id,
+                    gross_amount: dataTransaksi.data.total
+                },
+                credit_card: {
+                    secure: true
+                },
+                items_details: [{
+                    category: "menu"
+                }]
+            }
+        }
+
+        const { token, redirect_url } = await axios.request(options)
+            .then((response) => {
+                return response.data
+            })
+            .then((error) => {
+                return error
+            })
+
+        try {
+            const response = await prisma.transaksi.create({
+                data: {
+                    transaksiId: id,
+                    menu: {
+                        set: dataTransaksi.data.menu
+                    },
+                    total: dataTransaksi.data.total,
+                    token,
+                    redirect_url,
+                    isPaid: false,
+                    userId
+
+                }
+            })
+
+            res.json(
+                {
+                    "message": "Payment Link successfully created!",
+                    "data": response
+                }
+            )
+        } catch (error) {
+            console.log(error)
+        }
+    } else if (paymentMethod === 'cash') {
+        try {
+            const response = await prisma.transaksi.create({
+                data: {
+                    transaksiId: id,
+                    menu: {
+                        set: dataTransaksi.data.menu
+                    },
+                    total: dataTransaksi.data.total,
+                    token: '-',
+                    redirect_url: '-',
+                    isPaid: true,
+                    userId
+
+                }
+            })
+
+            res.json(
+                {
+                    "message": "Payment Success!",
+                    "data": response
+                }
+            )
+        } catch (error) {
+            console.log(error)
         }
     }
 
-    const { token, redirect_url } = await axios.request(options)
-        .then((response) => {
-            return response.data
-        })
-        .then((error) => {
-            return error
-        })
 
-    try {
-        const response = await prisma.transaksi.create({
-            data: {
-                transaksiId: id,
-                menu: {
-                    set: dataTransaksi.data.menu
-                },
-                total: dataTransaksi.data.total,
-                token,
-                redirect_url,
-                isPaid: false,
-                userId
-
-            }
-        })
-
-        res.json(
-            {
-                "message": "Payment Link successfully created!",
-                "data": response
-            }
-        )
-    } catch (error) {
-        console.log(error)
-    }
 }
 
 async function handling(req, res) {

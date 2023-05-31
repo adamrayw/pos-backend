@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.get('/get/:id', authenticateToken, transaksiController.getTransaksi)
 router.get('/getTransaksiYesterday', authenticateToken, transaksiController.getTransaksiBulanKemarin)
-router.post('/post/:id', authenticateToken, transaksiController.postTransaksi)
+router.post('/post/:id/:paymentMethod', authenticateToken, transaksiController.postTransaksi)
 router.post('/handling', transaksiController.handling)
 router.post('/subscribe', authenticateToken, transaksiController.subscribe)
 
