@@ -62,10 +62,10 @@ const register = async (req, res) => {
             status_text: "success",
             message: "User successfully created!",
             data: {
-                id: user.id,
-                email: user.email,
-                nama_usaha: user.nama_usaha,
-                token: generateAccessToken({ email: user.email }),
+                id: response.id,
+                email: response.email,
+                nama_usaha: response.nama_usaha,
+                token: generateAccessToken({ email: response.email }),
             }
         })
     } catch (error) {
