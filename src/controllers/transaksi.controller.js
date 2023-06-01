@@ -278,6 +278,11 @@ async function handling(req, res) {
             }
         })
 
+        /* The above code is checking if a transaction exists and if it has been paid. If the
+        transaction has not been paid, it updates the transaction status based on the response from a
+        payment gateway (Midtrans). If the transaction has already been paid, it logs a message
+        saying "Transaksi sudah dibayar" (which means "Transaction has already been paid" in
+        Indonesian). The code is using the Prisma ORM to update the transaction status in a database. */
         if (getTransaction !== null) {
             if (getTransaction.isPaid === false) {
                 try {
@@ -286,7 +291,7 @@ async function handling(req, res) {
                             id: getTransaction.id
                         },
                         data: {
-                            isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement') ? true : false
+                            isPaid: responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false
                         }
                     })
                 } catch (error) {
@@ -297,17 +302,23 @@ async function handling(req, res) {
             }
         }
 
+        /* The above code is checking if a transaction subscription exists and if it has been paid. If
+        it has not been paid, it updates the subscription data in the database based on the response
+        from a payment gateway (Midtrans). It sets the subscription as paid and active if the
+        transaction status is 'capture' or 'settlement', and sets the expiration date for the
+        subscription. It also updates the expiration date for the user associated with the
+        subscription. If the subscription has already been paid, it logs a message saying that the
+        transaction has already been paid. */
         if (getTransactionSubs !== null) {
             if (getTransactionSubs.isPaid === false) {
-                console.log(getTransactionSubs.type)
                 try {
                     await prisma.subscriptions.update({
                         where: {
                             id: getTransactionSubs.id
                         },
                         data: {
-                            isPaid: (responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement') ? true : false,
-                            isActived: true,
+                            isPaid: responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false,
+                            isActived: responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false,
                             expired: getSubscriptionDate(getTransactionSubs.type),
                             user: {
                                 update: {
