@@ -145,7 +145,6 @@ async function search(req, res) {
             },
 
         })
-        // console.log(response)
         res.json({ 'items': response.Item })
     } catch (error) {
         console.log(error)
