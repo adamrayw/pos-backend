@@ -9,7 +9,29 @@ async function getTransaksiKemarin(id) {
     const beginningOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 1, 0, 0, 0, 0);
     const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() - 1, 23, 59, 59, 999);
 
-    console.log(id)
+
+    /* The above code is creating a JavaScript function that retrieves the current date and time and
+    formats it into a string in the format "YYYY-MM-DD HH:MM:SS". It uses the `Date` object to get
+    the current date and time, and then uses various methods to extract the year, month, day, hours,
+    minutes, and seconds from the `Date` object. It also uses the `padStart` method to ensure that
+    each component of the date and time is two digits long, adding a leading zero if necessary.
+    Finally, it concatenates all the components into a single string and */
+    function getCurrentDateTime() {
+
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const hours = String(currentDate.getHours()).padStart(2, '0');
+        const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+        const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+
+        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+        return formattedDateTime
+
+    }
 
     try {
         const response = await prisma.user.findUnique({
@@ -242,7 +264,13 @@ async function postTransaksi(req, res) {
                     token: '-',
                     redirect_url: '-',
                     isPaid: true,
-                    userId
+                    userId,
+                    rincian: {
+                        "order_id": id,
+                        "payment_type": "Cash",
+                        "transaction_time": getCurrentDateTime(),
+                        "transaction_status": "settlement",
+                    }
 
                 }
             })
