@@ -266,10 +266,10 @@ async function postTransaksi(req, res) {
                     isPaid: true,
                     userId,
                     rincian: {
-                        "order_id": id,
-                        "payment_type": "Cash",
-                        "transaction_time": getCurrentDateTime(),
-                        "transaction_status": "settlement",
+                        order_id: id,
+                        payment_type: "Cash",
+                        transaction_time: getCurrentDateTime(),
+                        transaction_status: "settlement",
                     }
 
                 }
