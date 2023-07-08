@@ -65,6 +65,7 @@ model Transaksi {
   token        String?
   redirect_url String?
   isPaid       Boolean
+  rincian      Json?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime?
 }

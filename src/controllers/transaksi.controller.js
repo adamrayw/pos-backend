@@ -134,6 +134,7 @@ async function getTransaksi(req, res) {
             },
             include: {
                 Transaksi: {
+                    take: 5,
                     orderBy: {
                         createdAt: 'desc'
                     }
@@ -203,6 +204,7 @@ async function postTransaksi(req, res) {
                 return error
             })
 
+
         try {
             const response = await prisma.transaksi.create({
                 data: {
@@ -262,6 +264,8 @@ async function postTransaksi(req, res) {
 async function handling(req, res) {
     const responseFromMidtrans = req.body
 
+    console.log(responseFromMidtrans)
+
     try {
         const getTransaction = await prisma.transaksi.findFirst({
             where: {
@@ -291,7 +295,8 @@ async function handling(req, res) {
                             id: getTransaction.id
                         },
                         data: {
-                            isPaid: responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false
+                            isPaid: responseFromMidtrans.transaction_status === 'capture' || responseFromMidtrans.transaction_status === 'settlement' ? true : false,
+                            rincian: responseFromMidtrans
                         }
                     })
                 } catch (error) {
