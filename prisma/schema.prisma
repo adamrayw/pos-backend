@@ -15,6 +15,10 @@ model User {
   nama_usaha    String?
   email         String          @unique
   password      String
+  pic           String?
+  kontak        String?
+  alamat        String?
+  qris          String?
   type          Type?
   expired       DateTime?
   createdAt     DateTime        @default(now())

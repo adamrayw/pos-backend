@@ -105,6 +105,9 @@ async function getTransaksiHariIni(id) {
                         },
                         isPaid: true,
                     },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
                 },
             },
         });
@@ -136,8 +139,12 @@ async function getTransaksiBulanIni(id) {
                         },
                         isPaid: true,
                     },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
                 },
             },
+
         });
 
         return response

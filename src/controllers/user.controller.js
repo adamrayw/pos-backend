@@ -1,5 +1,53 @@
 const prisma = require('../services/prisma.service')
 
+const getUserData = async (req, res) => {
+    const id = req.params.id
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: id
+            },
+        })
+
+        res.status(200).json({
+            status: 200,
+            status_text: "success",
+            data: user
+        })
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+const updateUserData = async (req, res) => {
+    const id = req.params.id
+    const { nama_usaha, pic, kontak_toko, lokasi_toko } = req.body
+
+    try {
+        const user = await prisma.user.update({
+            where: {
+                id: id
+            },
+            data: {
+                nama_usaha,
+                pic,
+                kontak: kontak_toko,
+                alamat: lokasi_toko
+            }
+        })
+
+        res.status(200).json({
+            status: 200,
+            status_text: "success",
+            data: user
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 const getDashboard = async (req, res) => {
     const id = req.params.id
 
@@ -93,5 +141,7 @@ const checkSubscription = async (req, res) => {
 
 module.exports = {
     getDashboard,
-    checkSubscription
+    checkSubscription,
+    getUserData,
+    updateUserData
 }
