@@ -67,9 +67,9 @@ async function getTransaksiBulanKemarin(id) {
 }
 
 async function getTransaksiHariIni(id) {
-    const currentDate = new Date();
-    const beginningOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
-    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
+    const currentDate = DateTime.local();
+    const beginningOfDay = currentDate.startOf('day');
+
     try {
         const response = await prisma.user.findUnique({
             where: {
@@ -79,8 +79,7 @@ async function getTransaksiHariIni(id) {
                 Transaksi: {
                     where: {
                         createdAt: {
-                            gte: beginningOfDay,
-                            lte: endOfDay
+                            gte: beginningOfDay.toJSDate(),
                         },
                         isPaid: true,
                     },
@@ -91,12 +90,12 @@ async function getTransaksiHariIni(id) {
             },
         });
 
-
-        return response
+        return response;
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 }
+
 
 async function getTransaksiBulanIni(id) {
     const currentDate = new Date();
