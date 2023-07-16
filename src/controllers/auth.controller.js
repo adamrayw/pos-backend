@@ -117,6 +117,8 @@ const login = async (req, res) => {
                     id: user.id,
                     email: user.email,
                     nama_usaha: user.nama_usaha,
+                    alamat: user.alamat,
+                    kontak: user.kontak,
                     token: generateAccessToken({ email: user.email }),
                 }
             })
