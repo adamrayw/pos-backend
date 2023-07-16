@@ -4,6 +4,7 @@ const authenticateToken = require('../middlewares/authentication.middleware');
 const router = express.Router()
 
 router.get('/get/:id', authenticateToken, transaksiController.getTransaksi)
+router.get('/filteredTransaksi/:id/:start/:end', authenticateToken, transaksiController.getFilteredTransaction)
 router.get('/getTransaksiYesterday', authenticateToken, transaksiController.getTransaksiBulanKemarin)
 router.post('/post/:id/:paymentMethod', authenticateToken, transaksiController.postTransaksi)
 router.post('/handling', transaksiController.handling)

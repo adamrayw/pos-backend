@@ -11,9 +11,6 @@ async function getTransaksiKemarin(id) {
     const startOfYesterday = yesterday.startOf('day');
     const endOfYesterday = yesterday.endOf('day');
 
-    console.log(startOfYesterday.toISO());
-    console.log(endOfYesterday.toISO());
-
     try {
         const response = await prisma.user.findUnique({
             where: {
@@ -43,8 +40,6 @@ async function getTransaksiBulanKemarin(id) {
     const lastMonth = currentDate.minus({ months: 1 });
     const firstDayOfLastMonth = lastMonth.startOf('month');
     const lastDayOfLastMonth = lastMonth.endOf('month');
-
-    console.log(lastDayOfLastMonth.toISO())
 
     try {
         const response = await prisma.user.findUnique({
@@ -464,6 +459,58 @@ const subscribe = async (req, res) => {
     }
 }
 
+const getFilteredTransaction = async (req, res) => {
+    try {
+        const startMonth = parseInt(req.params.start); // Convert start month to integer
+        const endMonth = parseInt(req.params.end); // Convert end month to integer
+
+        // Validate the input month values
+        if (
+            isNaN(startMonth) ||
+            isNaN(endMonth) ||
+            startMonth < 0 ||
+            startMonth > 11 ||
+            endMonth < 0 ||
+            endMonth > 11
+        ) {
+            return res.status(400).json({ message: 'Invalid month range' });
+        }
+
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+
+        const response = await prisma.transaksi.findMany();
+
+        const filteredTransactions = response.filter((transaction) => {
+            const transactionDate = new Date(transaction.createdAt);
+            const transactionMonth = transactionDate.getMonth();
+            const transactionYear = transactionDate.getFullYear();
+
+            // Check if the transaction falls within the desired date range
+            if (transactionYear === currentYear) {
+                // If the transaction year is the same as the current year, compare the month
+                return transactionMonth >= startMonth && transactionMonth <= endMonth;
+            } else if (transactionYear > currentYear) {
+                // If the transaction year is greater than the current year, include it
+                return true;
+            }
+
+            return false;
+        });
+
+        res.json({
+            message: 'Success',
+            data: filteredTransactions,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+
+
 module.exports = {
     getTransaksi,
     postTransaksi,
@@ -471,5 +518,6 @@ module.exports = {
     getTransaksiHariIni,
     getTransaksiKemarin,
     getTransaksiBulanKemarin,
-    subscribe
+    subscribe,
+    getFilteredTransaction
 }
