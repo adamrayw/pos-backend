@@ -29,7 +29,7 @@ function generateAccessToken(email) {
  * a token
  */
 const register = async (req, res) => {
-    const { email, nama_usaha, password } = req.body;
+    const { email, nama_usaha, password, pic, kontak, lokasi } = req.body;
 
     // check if email already exists
     const user = await prisma.user.findUnique({
@@ -53,6 +53,9 @@ const register = async (req, res) => {
             data: {
                 email,
                 nama_usaha,
+                pic,
+                kontak,
+                alamat: lokasi,
                 password: await hashPassword(password)
             }
         });
