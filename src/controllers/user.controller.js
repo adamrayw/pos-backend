@@ -1,4 +1,7 @@
 const prisma = require('../services/prisma.service')
+const cloudinary = require('../../src/services/cloudinary.service')
+
+
 
 const getUserData = async (req, res) => {
     const id = req.params.id
@@ -18,12 +21,41 @@ const getUserData = async (req, res) => {
     } catch (error) {
         console.log(error)
     }
-
 }
 
-const updateUserData = async (req, res) => {
+async function uploadImage(imagePath) {
+    const options = {
+        unique_filename: true,
+        overwrite: false
+    }
+
+    try {
+        // upload the image
+        const result = await cloudinary.uploader.upload(imagePath, options)
+        /* Returning the secure url of the image uploaded to cloudinary. */
+        return result.secure_url
+    } catch (error) {
+        console.log(`Error while uploading image` + error.message)
+    }
+}
+
+const updateUserData = async (req, res, next) => {
     const id = req.params.id
-    const { nama_usaha, pic, kontak_toko, lokasi_toko } = req.body
+    const { nama_usaha, pic, kontak_toko, lokasi_toko, qris, isEditImage } = req.body
+    let imageUrl = ''
+
+    console.log(qris)
+    console.log(isEditImage)
+
+    if (isEditImage === true || isEditImage === 'true') {
+        try {
+            const b64 = Buffer.from(req.file.buffer).toString("base64")
+            const dataURI = "data:" + req.file.mimetype + ";base64," + b64
+            imageUrl = await uploadImage(dataURI)
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
 
     try {
         const user = await prisma.user.update({
@@ -34,7 +66,8 @@ const updateUserData = async (req, res) => {
                 nama_usaha,
                 pic,
                 kontak: kontak_toko,
-                alamat: lokasi_toko
+                alamat: lokasi_toko,
+                qris: (isEditImage === true || isEditImage === 'true' ? imageUrl : qris),
             }
         })
 
