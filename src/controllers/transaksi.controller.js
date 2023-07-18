@@ -459,6 +459,8 @@ const subscribe = async (req, res) => {
 }
 
 const getFilteredTransaction = async (req, res) => {
+    const userId = req.params.id;
+
     try {
         const startMonth = parseInt(req.params.start); // Convert start month to integer
         const endMonth = parseInt(req.params.end); // Convert end month to integer
@@ -478,7 +480,11 @@ const getFilteredTransaction = async (req, res) => {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
 
-        const response = await prisma.transaksi.findMany();
+        const response = await prisma.transaksi.findMany({
+            where: {
+                userId: userId, // Filter transactions by userId
+            },
+        });
 
         const filteredTransactions = response.filter((transaction) => {
             const transactionDate = new Date(transaction.createdAt);
