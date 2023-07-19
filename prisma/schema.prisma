@@ -11,22 +11,23 @@ datasource db {
 }
 
 model User {
-  id            String          @id @unique @default(uuid())
-  nama_usaha    String?
-  email         String          @unique
-  password      String
-  pic           String?
-  kontak        String?
-  alamat        String?
-  qris          String?
-  type          Type?
-  expired       DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime?
-  subscriptions Subscriptions[]
-  Kategori      Kategori[]
-  Item          Item[]
-  Transaksi     Transaksi[]
+  id                   String          @id @unique @default(uuid())
+  nama_usaha           String?
+  email                String          @unique
+  password             String
+  pic                  String?
+  kontak               String?
+  alamat               String?
+  qris                 String?
+  type                 Type?
+  expired              DateTime?
+  reset_password_token String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime?
+  subscriptions        Subscriptions[]
+  Kategori             Kategori[]
+  Item                 Item[]
+  Transaksi            Transaksi[]
 }
 
 enum Type {

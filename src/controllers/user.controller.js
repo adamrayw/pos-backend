@@ -6,6 +6,8 @@ const cloudinary = require('../../src/services/cloudinary.service')
 const getUserData = async (req, res) => {
     const id = req.params.id
 
+    console.log(id)
+
     try {
         const user = await prisma.user.findUnique({
             where: {

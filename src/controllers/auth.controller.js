@@ -142,7 +142,241 @@ const login = async (req, res) => {
     }
 }
 
+// EMAIL SEND FORGOT PASSWORD
+var SibApiV3Sdk = require('sib-api-v3-sdk');
+var defaultClient = SibApiV3Sdk.ApiClient.instance;
+var apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    // check if email exists
+    const user = await prisma.user.findUnique({
+        where: {
+            email
+        }
+    })
+
+    // if email doesn't exist, return error
+    if (user === null) {
+        return res.json({
+            status: 400,
+            status_text: "not found",
+            message: "User doesn't exist!"
+        })
+    }
+
+    const updateToken = await prisma.user.update({
+        where: {
+            email
+        },
+        data: {
+            reset_password_token: generateAccessToken({ email: user.email })
+        }
+    })
+
+    // if email exists, send email
+    sendForgotPassword(
+        user.email,
+        user.nama_usaha,
+        user.id,
+        updateToken.reset_password_token
+    )
+
+    res.status(200).json({
+        status: 200,
+        status_text: "success",
+        message: "Link reset password telah dikirim ke email anda!",
+    })
+
+}
+
+const resetPassword = async (req, res) => {
+    const { password, token, id } = req.body;
+
+    console.log(password, token, id)
+
+    // check if email exists
+    const user = await prisma.user.findUnique({
+        where: {
+            id
+        }
+    })
+
+    // if email doesn't exist, return error
+    if (user === null) {
+        return res.json({
+            status: 400,
+            status_text: "not found",
+            message: "User doesn't exist!"
+        })
+    }
+
+    // if exist, check token
+    if (user.reset_password_token === token) {
+        // if token match, update password
+        const updatePassword = await prisma.user.update({
+            where: {
+                id
+            },
+            data: {
+                password: await hashPassword(password),
+                reset_password_token: null
+            }
+        })
+
+        res.status(200).json({
+            status: 200,
+            status_text: "success",
+            message: "Password berhasil diubah!",
+        })
+    }
+}
+
+const sendForgotPassword = async (email, nama_usaha, userId, token) => {
+    var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    var sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail(); // SendSmtpEmail | Values to send a transactional email
+    sendSmtpEmail = {
+        sender: {
+            name: "NGECASH",
+            email: "info@ngecash.id"
+        },
+        to: [
+            {
+                email: email,
+                name: "User",
+            },
+        ],
+        subject: "Reset Password Link",
+        htmlContent: `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Forgot Password</title>
+            <style>
+              /* Reset some default styles */
+              body,
+              p {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, Helvetica, sans-serif;
+              }
+        
+              /* Set a background color and font styles */
+              body {
+                background-color: #f4f4f4;
+                font-family: Arial, sans-serif;
+              }
+        
+              /* Main email container */
+              .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+              }
+        
+              /* Heading styles */
+              h1 {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 20px;
+              }
+              a {
+                color: white;
+              }
+              /* Content styles */
+              p {
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 20px;
+              }
+        
+              /* Button styles */
+              .btn {
+                display: inline-block;
+                background-color: #ffffff;
+                color: #007bff;
+                border: 1px solid #007bff;
+                box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+                font-weight: bold;
+                text-decoration: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-size: 16px;
+              }
+        
+              /* Footer styles */
+              .footer {
+                margin-top: 20px;
+                font-size: 14px;
+                text-align: center;
+              }
+              .brand {
+                text-align: center;
+                color: #007bff;
+                font-size: 2em;
+              }
+        
+              .greet {
+                font-size: 1.5em;
+                color: gray;
+              }
+              .body {
+                text-align: center;
+              }
+              .message-top {
+                font-weight: bold;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <h1 class="brand">NGECASH</h1>
+              <!-- <h1>Lupa Password</h1> -->
+              <p class="greet">Hallo, ${nama_usaha}</p>
+              <p class="message-top">
+                A requested has been received to change the password for your NGECASH
+                Account.
+              </p>
+              <div class="body">
+                <p><a href=${`https://posku.vercel.app/reset-password/${token}/${userId}`} class="btn">Reset Password</a></p>
+              </div>
+        
+              <p style="color: gray; padding-top: 16px;">
+                If you did not submit this request, please ignore this email.
+              </p>
+              <p style="color: gray; padding-bottom: 40px;">
+                Thank You, <br />
+                NGECASH Team
+              </p>
+              <div class="footer">
+                <p style="color: gray;">&copy; 2023 NGECASH.</p>
+              </div>
+            </div>
+          </body>
+        </html>
+        
+
+        `,
+    };
+    apiInstance.sendTransacEmail(sendSmtpEmail).then(
+        function (data) {
+            console.log("API called successfully. Returned data: " + data);
+        },
+        function (error) {
+            console.error(error);
+        }
+    );
+}
+
 module.exports = {
     register,
-    login
+    login,
+    forgotPassword,
+    resetPassword
 }
