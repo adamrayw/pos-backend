@@ -265,6 +265,8 @@ async function postTransaksi(req, res) {
                     total: dataTransaksi.data.total,
                     token: '-',
                     redirect_url: '-',
+                    isPpn: dataTransaksi.data.isPpn,
+                    subTotal: dataTransaksi.data.subTotal,
                     isPaid: true,
                     userId,
                     rincian: {

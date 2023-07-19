@@ -67,9 +67,11 @@ model Transaksi {
   userId       String?
   menu         Json?
   total        Int
+  subTotal     Int?
   token        String?
   redirect_url String?
   isPaid       Boolean
+  isPpn        Boolean   @default(false)
   rincian      Json?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime?
