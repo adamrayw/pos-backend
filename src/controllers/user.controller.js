@@ -1,12 +1,8 @@
 const prisma = require('../services/prisma.service')
 const cloudinary = require('../../src/services/cloudinary.service')
 
-
-
 const getUserData = async (req, res) => {
     const id = req.params.id
-
-    console.log(id)
 
     try {
         const user = await prisma.user.findUnique({
@@ -45,9 +41,6 @@ const updateUserData = async (req, res, next) => {
     const id = req.params.id
     const { nama_usaha, pic, kontak_toko, lokasi_toko, qris, isEditImage } = req.body
     let imageUrl = ''
-
-    console.log(qris)
-    console.log(isEditImage)
 
     if (isEditImage === true || isEditImage === 'true') {
         try {

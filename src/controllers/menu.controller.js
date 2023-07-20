@@ -75,8 +75,6 @@ async function addItem(req, res, next) {
 async function edit(req, res) {
     const { id, image, name, price, imageEdited, kategoriId } = req.body
 
-    console.log(kategoriId)
-
     let imageUrl = ''
 
     if (imageEdited === true || imageEdited === 'true') {

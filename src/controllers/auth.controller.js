@@ -3,8 +3,25 @@ const hashPassword = require("../utils/hashPassword");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken")
 const dotenv = require('dotenv');
+const cloudinary = require('../../src/services/cloudinary.service')
 
 dotenv.config();
+
+async function uploadImage(imagePath) {
+    const options = {
+        unique_filename: true,
+        overwrite: false
+    }
+
+    try {
+        // upload the image
+        const result = await cloudinary.uploader.upload(imagePath, options)
+        /* Returning the secure url of the image uploaded to cloudinary. */
+        return result.secure_url
+    } catch (error) {
+        console.log(`Error while uploading image` + error.message)
+    }
+}
 
 
 /**
@@ -30,6 +47,7 @@ function generateAccessToken(email) {
  */
 const register = async (req, res) => {
     const { email, nama_usaha, password, pic, kontak, lokasi } = req.body;
+    let imageUrl = ''
 
     // check if email already exists
     const user = await prisma.user.findUnique({
@@ -47,6 +65,14 @@ const register = async (req, res) => {
         })
     }
 
+    try {
+        const b64 = Buffer.from(req.file.buffer).toString("base64")
+        const dataURI = "data:" + req.file.mimetype + ";base64," + b64
+        imageUrl = await uploadImage(dataURI)
+    } catch (error) {
+        console.log(error.message)
+    }
+
     // if email doesn't exist, create new user
     try {
         const response = await prisma.user.create({
@@ -56,7 +82,8 @@ const register = async (req, res) => {
                 pic,
                 kontak,
                 alamat: lokasi,
-                password: await hashPassword(password)
+                password: await hashPassword(password),
+                qris: imageUrl
             }
         });
 
@@ -68,6 +95,8 @@ const register = async (req, res) => {
                 id: response.id,
                 email: response.email,
                 nama_usaha: response.nama_usaha,
+                alamat: response.alamat,
+                kontak: response.kontak,
                 token: generateAccessToken({ email: response.email }),
             }
         })
@@ -194,8 +223,6 @@ const forgotPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
     const { password, token, id } = req.body;
-
-    console.log(password, token, id)
 
     // check if email exists
     const user = await prisma.user.findUnique({

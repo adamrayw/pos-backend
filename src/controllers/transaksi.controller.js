@@ -96,11 +96,10 @@ async function getTransaksiHariIni(id) {
     }
 }
 
-
-async function getTransaksiBulanIni(id) {
-    const currentDate = new Date();
-    const beginningOfThisMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const endOfThisMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999);
+async function getTrTodayLimit(id) {
+    const currentDate = DateTime.local();
+    const beginningOfDay = currentDate.startOf('day');
+    const endOfDay = currentDate.endOf('day');
 
     try {
         const response = await prisma.user.findUnique({
@@ -111,9 +110,42 @@ async function getTransaksiBulanIni(id) {
                 Transaksi: {
                     where: {
                         createdAt: {
+                            gte: beginningOfDay.toJSDate(),
+                            lte: endOfDay.toJSDate(),
+                        },
+                        isPaid: true,
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    take: 5
+                },
+            },
+        });
+
+        return response
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+async function getTransaksiBulanIni(id) {
+    const currentDate = DateTime.now();
+    const beginningOfThisMonth = currentDate.startOf('month');
+    const endOfThisMonth = currentDate.endOf('month');
+    try {
+        const response = await prisma.user.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                Transaksi: {
+                    where: {
+                        createdAt: {
                             /* It's getting the first day of the past month. */
-                            gte: beginningOfThisMonth,
-                            lte: endOfThisMonth
+                            gte: beginningOfThisMonth.toJSDate(),
+                            lte: endOfThisMonth.toJSDate(),
                         },
                         isPaid: true,
                     },
@@ -153,6 +185,7 @@ async function getTransaksi(req, res) {
         const trmonth = await getTransaksiBulanIni(id)
         const tryesterday = await getTransaksiKemarin(id)
         const tryesterdaymonth = await getTransaksiBulanKemarin(id)
+        const tr5last = await getTrTodayLimit(id)
 
         res.json(
             {
@@ -161,7 +194,8 @@ async function getTransaksi(req, res) {
                 'transaction_today': trtoday,
                 'transaction_month': trmonth,
                 'transaction_yesterday': tryesterday,
-                'transaction_last_month': tryesterdaymonth
+                'transaction_last_month': tryesterdaymonth,
+                'last_transaction': tr5last
 
             }
         )
@@ -174,23 +208,6 @@ async function postTransaksi(req, res) {
     const dataTransaksi = req.body
     const userId = req.params.id
     const paymentMethod = req.params.paymentMethod
-
-    function getCurrentDateTime() {
-
-        const currentDate = new Date();
-
-        const year = currentDate.getFullYear();
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const day = String(currentDate.getDate()).padStart(2, '0');
-        const hours = String(currentDate.getHours()).padStart(2, '0');
-        const minutes = String(currentDate.getMinutes()).padStart(2, '0');
-        const seconds = String(currentDate.getSeconds()).padStart(2, '0');
-
-        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-        return formattedDateTime
-
-    }
 
     const id = generateTransactionID()
     if (paymentMethod === 'midtrans') {
@@ -272,7 +289,7 @@ async function postTransaksi(req, res) {
                     rincian: {
                         order_id: id,
                         payment_type: "Cash",
-                        transaction_time: getCurrentDateTime(),
+                        transaction_time: new Date(),
                         transaction_status: "settlement",
                     }
 
@@ -295,8 +312,6 @@ async function postTransaksi(req, res) {
 
 async function handling(req, res) {
     const responseFromMidtrans = req.body
-
-    console.log(responseFromMidtrans)
 
     try {
         const getTransaction = await prisma.transaksi.findFirst({
