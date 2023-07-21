@@ -67,7 +67,7 @@ async function getTransaksiBulanKemarin(id) {
 }
 
 async function getTransaksiHariIni(id) {
-    const currentDate = DateTime.local();
+    const currentDate = DateTime.local().setZone('Asia/Jakarta');;
     const beginningOfDay = currentDate.startOf('day');
 
     try {
@@ -97,7 +97,7 @@ async function getTransaksiHariIni(id) {
 }
 
 async function getTrTodayLimit(id) {
-    const currentDate = DateTime.local();
+    const currentDate = DateTime.local().setZone('Asia/Jakarta');;
     const beginningOfDay = currentDate.startOf('day');
     const endOfDay = currentDate.endOf('day');
 
